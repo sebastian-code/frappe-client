@@ -86,3 +86,14 @@ class FrappeClient:
         return self.__api_call__(
             method="POST", doctype=doctype, payload=new_record
         ).json()
+
+    def get_doc(self, doctype, name, fields='"*"'):
+        """This API call returns a single record from the given instance.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param name: Primary key identifier, as in `name` of the record.
+        :param fields: (Optional) A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
+        """
+        return self.__api_call__(
+            doctype=f"{doctype}/{name}", payload=json.dumps(fields)
+        ).json()
