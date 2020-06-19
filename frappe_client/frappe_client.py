@@ -26,6 +26,16 @@ class FrappeClient:
         return f"{self.url}/api/resource/{doctype}"
 
     def __api_call__(self, method=None, doctype=None, payload=None):
+        """Main method to build API calls on top of it for simpler calls to the API, through the instance of client.
+
+        :param method: Recieves a string with the name of the intended HTML verb (POST, GET).
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param payload: A value with the information for the API call.
+        """
+        if method and method.upper() == "POST":
+            return self.session.post(
+                self.__build_url__(doctype), data=json.dumps(payload)
+            )
 
         return self.session.get(
             self.__build_url__(doctype), verify=self.verify, params=payload
@@ -61,3 +71,13 @@ class FrappeClient:
             params["order_by"] = order_by
 
         return self.__api_call__(doctype=doctype, payload=params).json()
+
+    def add_doc(self, doctype=None, new_record=None):
+        """API call to create a new record of a given DocType.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param new_record: A dict type element with at least the required fields for the creation of a new record.
+        """
+        return self.__api_call__(
+            method="POST", doctype=doctype, payload=new_record
+        ).json()
