@@ -30,21 +30,29 @@ class FrappeClient:
 
         return f"{self.url}/api/resource/{doctype}"
 
-    def __api_call__(self, method, doctype, payload):
+    def __api_call__(self, doctype, payload, method="GET"):
         """Main method to build API calls on top of it for simpler calls to the API, through the instance of client.
 
         :param method: Recieves a string with the name of the intended HTML verb (POST, GET).
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
         :param payload: A value with the information for the API call.
         """
-        if method and method.upper() == "POST":
+        if method.upper() == "POST":
             return self.session.post(
                 self.__build_url__(doctype), data=json.dumps(payload)
             )
-
-        return self.session.get(
-            self.__build_url__(doctype), verify=self.verify, params=payload
-        )
+        elif method.upper() == "PUT":
+            return self.session.put(
+                self.__build_url__(doctype), data=json.dumps(payload)
+            )
+        elif method.upper() == "DELETE":
+            return self.session.delete(
+                self.__build_url__(doctype), data=json.dumps(payload)
+            )
+        else:
+            return self.session.get(
+                self.__build_url__(doctype), verify=self.verify, params=payload
+            )
 
     def list_doc(
         self,
@@ -77,7 +85,7 @@ class FrappeClient:
 
         return self.__api_call__(doctype=doctype, payload=params).json()
 
-    def add_doc(self, doctype, new_record):
+    def post_doc(self, doctype, new_record):
         """API call to create a new record of a given DocType.
 
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
