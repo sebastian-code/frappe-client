@@ -24,3 +24,40 @@ class FrappeClient:
 
     def __build_url__(self, doctype):
         return f"{self.url}/api/resource/{doctype}"
+
+    def __api_call__(self, method=None, doctype=None, payload=None):
+
+        return self.session.get(
+            self.__build_url__(doctype), verify=self.verify, params=payload
+        )
+
+    def list_doc(
+        self,
+        doctype,
+        fields='"*"',
+        filters=None,
+        limit_start=0,
+        limit_page_length=0,
+        order_by=None,
+    ):
+        """API call method to list the records in a single DocType.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param fields: A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
+        :param filters: A list/tuple of tuples with the filters to apply to the query, where each filter is of the format: [field, operator, value]
+        :param limit_start: Int value with the first position to start the query from.
+        :param limit_page_length: Int value with the pagination length.
+        """
+        params = {
+            "fields": json.dumps(fields),
+        }
+        if filters:
+            params["filters"] = json.dumps(filters)
+        if limit_start:
+            params["limit_start"] = limit_start
+        if limit_page_length:
+            params["limit_page_length"] = limit_page_length
+        if order_by:
+            params["order_by"] = order_by
+
+        return self.__api_call__(doctype=doctype, payload=params).json()
