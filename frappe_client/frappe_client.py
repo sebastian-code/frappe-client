@@ -23,9 +23,14 @@ class FrappeClient:
         self.url = url
 
     def __build_url__(self, doctype):
+        """Helper method to build any URL for API calls.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        """
+
         return f"{self.url}/api/resource/{doctype}"
 
-    def __api_call__(self, method=None, doctype=None, payload=None):
+    def __api_call__(self, method, doctype, payload):
         """Main method to build API calls on top of it for simpler calls to the API, through the instance of client.
 
         :param method: Recieves a string with the name of the intended HTML verb (POST, GET).
@@ -53,10 +58,10 @@ class FrappeClient:
         """API call method to list the records in a single DocType.
 
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
-        :param fields: A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
-        :param filters: A list/tuple of tuples with the filters to apply to the query, where each filter is of the format: [field, operator, value]
-        :param limit_start: Int value with the first position to start the query from.
-        :param limit_page_length: Int value with the pagination length.
+        :param fields: (Optional) A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
+        :param filters: (Optional) A list/tuple of tuples with the filters to apply to the query, where each filter is of the format: [field, operator, value]
+        :param limit_start: (Optional) Int value with the first position to start the query from.
+        :param limit_page_length: (Optional) Int value with the pagination length.
         """
         params = {
             "fields": json.dumps(fields),
@@ -72,7 +77,7 @@ class FrappeClient:
 
         return self.__api_call__(doctype=doctype, payload=params).json()
 
-    def add_doc(self, doctype=None, new_record=None):
+    def add_doc(self, doctype, new_record):
         """API call to create a new record of a given DocType.
 
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
