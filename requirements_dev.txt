@@ -8,6 +8,7 @@ pip==19.2.3
 pylint==2.5.3
 pytest-runner==5.1
 pytest==4.6.5
+python-decouple==3.3
 requests==2.24.0
 Sphinx==1.8.5
 tox==3.14.0
