@@ -16,51 +16,69 @@ class FrappeClient:
         "Content-Type": "application/json",
     }
 
-    def __init__(self, verify=True, url=None):
+    def __init__(self, url, verify=True):
         self.verify = verify
         self.session = requests.Session()
         self.session.headers = headers
         self.url = url
 
-    def __build_url__(self, doctype):
+    def __build_url__(self, command):
         """Helper method to build any URL for API calls.
 
-        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param command: A string with the destination endpoint and its core arguments.
         """
+        return f"{self.url}/api/resource/{command}"
 
-        return f"{self.url}/api/resource/{doctype}"
+    def get_doc(self, doctype, name, fields='"*"'):
+        """This API call returns a single record from the given instance.
 
-    def __api_call__(self, doctype, payload, method="GET"):
-        """Main method to build API calls on top of it for simpler calls to the API, through the instance of client.
-
-        :param method: Recieves a string with the name of the intended HTML verb (POST, GET).
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
-        :param payload: A value with the information for the API call.
+        :param name: Primary key identifier, as in `name` of the record.
+        :param fields: (Optional) A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
         """
-        if method.upper() == "POST":
-            return self.session.post(
-                self.__build_url__(doctype), data=json.dumps(payload)
-            )
-        elif method.upper() == "PUT":
-            return self.session.put(
-                self.__build_url__(doctype), data=json.dumps(payload)
-            )
-        elif method.upper() == "DELETE":
-            return self.session.delete(
-                self.__build_url__(doctype), data=json.dumps(payload)
-            )
-        else:
-            return self.session.get(
-                self.__build_url__(doctype), verify=self.verify, params=payload
-            )
+        # return self.__api_call__(
+        #     doctype=f"{doctype}/{name}", payload=json.dumps(fields)
+        # ).json()
+        return self.session.get(
+            self.__build_url__(f"{doctype}/{name}"),
+            verify=self.verify,
+            params=json.dumps(fields),
+        ).json()
+
+    def post_doc(self, doctype, payload):
+        """API call to create a new record of a given DocType.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param payload: A dict type element with at least the required fields for the creation of a new record.
+        """
+        # return self.__api_call__(
+        #     method="POST", doctype=doctype, payload=payload
+        # ).json()
+        return self.session.post(
+            self.__build_url__(doctype), data=json.dumps(payload)
+        ).json()
+
+    def put_doc(self, doctype, name, payload):
+        # return self.__api_call__(
+        #     doctype=f"{doctype}/{name}", payload=payload, method="PUT"
+        # ).json()
+        return self.session.put(
+            self.__build_url__(f"{doctype}/{name}"), data=json.dumps(payload)
+        ).json()
+
+    def delete_doc(self, doctype, name):
+        # return self.__api_call__(
+        #     doctype=f"{doctype}/{name}", None, method="DELETE"
+        # )
+        return self.session.delete(self.__build_url__(f"{doctype}/{name}")).json()
 
     def list_doc(
         self,
         doctype,
-        fields='"*"',
+        fields="*",
         filters=None,
-        limit_start=0,
-        limit_page_length=0,
+        limit_start=None,
+        limit_page_length=None,
         order_by=None,
     ):
         """API call method to list the records in a single DocType.
@@ -83,25 +101,4 @@ class FrappeClient:
         if order_by:
             params["order_by"] = order_by
 
-        return self.__api_call__(doctype=doctype, payload=params).json()
-
-    def post_doc(self, doctype, new_record):
-        """API call to create a new record of a given DocType.
-
-        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
-        :param new_record: A dict type element with at least the required fields for the creation of a new record.
-        """
-        return self.__api_call__(
-            method="POST", doctype=doctype, payload=new_record
-        ).json()
-
-    def get_doc(self, doctype, name, fields='"*"'):
-        """This API call returns a single record from the given instance.
-
-        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
-        :param name: Primary key identifier, as in `name` of the record.
-        :param fields: (Optional) A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
-        """
-        return self.__api_call__(
-            doctype=f"{doctype}/{name}", payload=json.dumps(fields)
-        ).json()
+        return self.session.get(self.__build_url__(f"{doctype}"), params=params).json()
