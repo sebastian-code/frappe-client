@@ -30,15 +30,12 @@ class FrappeClient:
         return f"{self.url}/api/resource/{command}"
 
     def get_doc(self, doctype, name, fields='"*"'):
-        """This API call returns a single record from the given instance.
+        """This API call returns a single record from a given DocType.
 
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
         :param name: Primary key identifier, as in `name` of the record.
         :param fields: (Optional) A list/tuple of string elements, containing the names of the required fields in the DocType, with the same capitalization used in the instance.
         """
-        # return self.__api_call__(
-        #     doctype=f"{doctype}/{name}", payload=json.dumps(fields)
-        # ).json()
         return self.session.get(
             self.__build_url__(f"{doctype}/{name}"),
             verify=self.verify,
@@ -51,25 +48,22 @@ class FrappeClient:
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
         :param payload: A dict type element with at least the required fields for the creation of a new record.
         """
-        # return self.__api_call__(
-        #     method="POST", doctype=doctype, payload=payload
-        # ).json()
         return self.session.post(
             self.__build_url__(doctype), data=json.dumps(payload)
         ).json()
 
     def put_doc(self, doctype, name, payload):
-        # return self.__api_call__(
-        #     doctype=f"{doctype}/{name}", payload=payload, method="PUT"
-        # ).json()
+        """API method call to update a record identified by its `name` and DocType.
+
+        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
+        :param name: Primary key identifier under the `name` field.
+        :param payload: A dict type element with fields to be updated and the new values.
+        """
         return self.session.put(
             self.__build_url__(f"{doctype}/{name}"), data=json.dumps(payload)
         ).json()
 
     def delete_doc(self, doctype, name):
-        # return self.__api_call__(
-        #     doctype=f"{doctype}/{name}", None, method="DELETE"
-        # )
         return self.session.delete(self.__build_url__(f"{doctype}/{name}")).json()
 
     def list_doc(
