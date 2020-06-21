@@ -19,7 +19,7 @@ class FrappeClient:
     def __init__(self, url, verify=True):
         self.verify = verify
         self.session = requests.Session()
-        self.session.headers = headers
+        self.session.headers = self.headers
         self.url = url
 
     def __build_url__(self, command):
@@ -29,8 +29,14 @@ class FrappeClient:
         """
         return f"{self.url}/api/resource/{command}"
 
+    def validate_conn(self):
+        """Basic method to validate the connection and API credentials."""
+        return self.session.post(
+            self.url + "/api/method/frappe.auth.get_logged_user"
+        ).json()
+
     def get_doc(self, doctype, name, fields='"*"'):
-        """This API call returns a single record from a given DocType.
+        """This API call returns a single record from the given instance.
 
         :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
         :param name: Primary key identifier, as in `name` of the record.
@@ -53,12 +59,6 @@ class FrappeClient:
         ).json()
 
     def put_doc(self, doctype, name, payload):
-        """API method call to update a record identified by its `name` and DocType.
-
-        :param doctype: A string with the name of the doctype, with the same capitalization used in the instance.
-        :param name: Primary key identifier under the `name` field.
-        :param payload: A dict type element with fields to be updated and the new values.
-        """
         return self.session.put(
             self.__build_url__(f"{doctype}/{name}"), data=json.dumps(payload)
         ).json()
